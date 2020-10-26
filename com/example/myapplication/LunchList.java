@@ -1,27 +1,26 @@
 package com.example.myapplication;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.Activity;
+import android.app.TabActivity;
 import android.content.Context;
-import android.graphics.ImageDecoder;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TabHost;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class LunchList extends Activity {
+import javax.swing.text.View;
+
+public class LunchList extends TabActivity {
     private Restaurant r = new Restaurant();
     private List<Restaurant> restaurantList = new ArrayList<Restaurant>();
     private RestaurantAdapter restaurantArrayAdapter = null;
@@ -35,9 +34,21 @@ public class LunchList extends Activity {
         btnSave.setOnClickListener(onSave);
 
         ListView list = (ListView)findViewById(R.id.restaurants);
+        list.setOnItemClickListener(onListClick);
 
         restaurantArrayAdapter = new RestaurantAdapter();
         list.setAdapter(restaurantArrayAdapter);
+
+        TabHost.TabSpec spec = getTabHost().newTabSpec("tag1");
+        spec.setContent(R.id.restaurants);
+        spec.setIndicator("List",getResources().getDrawable(R.drawable.checklist));
+        getTabHost().addTab(spec);
+        spec = getTabHost().newTabSpec("tag2");
+        spec.setContent(R.id.details);
+        spec.setIndicator("Details",
+                getResources().getDrawable(R.drawable.restaurant));
+        getTabHost().addTab(spec);
+        getTabHost().setCurrentTab(0);
     }
 
     private View.OnClickListener onSave = new View.OnClickListener() {
@@ -105,7 +116,31 @@ public class LunchList extends Activity {
             return row;
         }
     }
+    private AdapterView.OnItemClickListener onListClick = new AdapterView.OnItemClickListener()
+    {
+        public void onListClick(AdapterView<?>parent, View view,int position, long id)
+        {
+            Restaurant r = listRestaurant.get(position);  // lấy item được chọn
+            EditText name;
+            EditText address;
+            RadioGroup types;
 
+            name = (EditText)findViewById(R.id.name);
+            address = (EditText)findViewById(R.id.address);
+            types = (RadioGroup)findViewById(R.id.types);
+
+            name.setText(r.getName());
+            address.setText(r.getAddress());
+            if (r.getType().equals("Sit down"))
+                types.check(R.id.sit_down);
+            else if (r.getType().equals("Take out"))
+                types.check(R.id.take_out);
+            else
+                types.check(R.id.delivery);
+
+            getTabHost().setCurrentTab(1);
+        }
+    }
 }
 
 
